@@ -8,7 +8,7 @@ html, body {
 
 #map {
   border-style: solid;
-  height: 95vh;      /* Ocupa 95% del alto de la ventana */
+  height: 100vh;      /* Ocupa 95% del alto de la ventana */
   width: 100%;       /* Ancho completo */
   box-sizing: border-box;
   max-height: 1200px; /* Máximo para pantallas grandes */
@@ -76,12 +76,12 @@ label {
 /* Ajustes para tablets y móviles */
 @media (max-width: 1200px) {
   #map {
-    height: 90vh;   /* Un poco menos para pantallas medias */
+    height: 95vh;   /* Un poco menos para pantallas medias */
   }
 }
 
 @media (max-width: 600px) {
   #map {
-    height: 70vh;   /* Altura menor en móviles */
+    height: 75vh;   /* Altura menor en móviles */
   }
 }
