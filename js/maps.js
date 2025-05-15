@@ -133,7 +133,7 @@ L.Control.CustomLayers = L.Control.extend({
         // 📌 Título con imagen
         var titleContainer = L.DomUtil.create("div", "panel-title-container", container);
         var titleImage = L.DomUtil.create("img", "panel-title-image", titleContainer);
-        titleImage.src = "C:/Program Files/Apache Software Foundation/Tomcat 9.0/webapps/geoportal/GALD PERFECTO.png"; // Ruta de la imagen
+        titleImage.src = "img/GALD PERFECTO.png"; // Ruta de la imagen
         titleImage.alt = "Título del Panel"; // Texto alternativo de la imagen
 
         // 📌 Sección Mapas Base (Desplegable)

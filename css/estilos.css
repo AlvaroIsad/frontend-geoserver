@@ -1,6 +1,17 @@
-#map{
-	border-style: solid;
-	height: 930px;
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#map {
+  border-style: solid;
+  height: 70vh;       /* Altura 70% de la ventana */
+  width: 100%;        /* Ancho completo */
+  box-sizing: border-box; /* El borde no agranda el tamaño total */
+  max-height: 930px;  /* Para no crecer más de 930px en pantallas grandes */
+  margin: 0 auto;
 }
 
 .custom-layers-control {
@@ -59,4 +70,28 @@ label {
 
 .custom-layers-control .wms-label {
     color: black;  /* Texto negro para las etiquetas dentro de Capas WMS */
+}
+
+@media (max-width: 600px) {
+  #map {
+    height: 60vh;    /* Menor altura en móviles */
+  }
+
+  .custom-layers-control {
+    width: 90vw;     /* Más ancho en móviles */
+    font-size: 10px; /* Texto más pequeño */
+  }
+
+  .layer-btn {
+    font-size: 10px;
+    padding: 4px;
+  }
+
+  label {
+    font-size: 10px;
+  }
+
+  .panel-title-image {
+    width: 120px;  /* Imagen más pequeña en móvil */
+  }
 }
