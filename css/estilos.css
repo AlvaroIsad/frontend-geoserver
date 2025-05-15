@@ -15,66 +15,67 @@ html, body {
 }
 
 .custom-layers-control {
-    background: white;  /* Fondo negro */
-    color: white;        /* Texto blanco */
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    font-family: Arial, sans-serif;
-    width: 180px; /* 📌 Reducimos el ancho */
+  background: white;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif;
+  width: 180px;
 }
 
 .section-title {
-    margin-top: 10px;
-    font-weight: bold;
-    color: black;  /* Títulos en blanco */
-    font-size: 14px;
-    text-align: center; /* Centrar los títulos */
+  margin-top: 10px;
+  font-weight: bold;
+  color: black;
+  font-size: 14px;
+  text-align: center;
 }
 
 .layer-btn {
-    width: 100%;
-    margin: 3px 0;
-    padding: 5px;
-    background: #333;  /* Fondo oscuro para los botones */
-    color: white;      /* Texto blanco */
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 12px; /* 📌 Reducimos el tamaño del texto */
+  width: 100%;
+  margin: 3px 0;
+  padding: 5px;
+  background: #333;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .layer-btn:hover {
-    background: #555; /* Fondo más claro al pasar el ratón */
+  background: #555;
 }
 
 .layer-checkbox {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 label {
-    font-size: 12px; /* 📌 Reducimos el tamaño del texto */
-    color: white;    /* Etiquetas en blanco */
+  font-size: 12px;
+  color: white;
 }
 
 .panel-title-container {
-    text-align: center;
-    margin-bottom: 10px;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .panel-title-image {
-    width: 160px;  /* Ajusta el tamaño de la imagen */
-    height: auto;
-    border-radius: 5px;  /* Opcional, para bordes redondeados */
+  width: 160px;
+  height: auto;
+  border-radius: 5px;
 }
 
 .custom-layers-control .wms-label {
-    color: black;  /* Texto negro para las etiquetas dentro de Capas WMS */
+  color: black;
 }
 
+/* Media query para pantallas pequeñas */
 @media (max-width: 600px) {
   #map {
-    height: 60vh;    /* Menor altura en móviles */
+    height: 60vh;    /* Altura menor en móviles */
   }
 
   .custom-layers-control {
@@ -92,6 +93,6 @@ label {
   }
 
   .panel-title-image {
-    width: 120px;  /* Imagen más pequeña en móvil */
+    width: 120px;
   }
 }
