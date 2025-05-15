@@ -3,14 +3,15 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+  overflow: hidden; /* Evita scroll innecesario */
 }
 
 #map {
   border-style: solid;
-  height: 70vh;       /* Altura 70% de la ventana */
-  width: 100%;        /* Ancho completo */
-  box-sizing: border-box; /* El borde no agranda el tamaño total */
-  max-height: 930px;  /* Para no crecer más de 930px en pantallas grandes */
+  height: 95vh;      /* Ocupa 95% del alto de la ventana */
+  width: 100%;       /* Ancho completo */
+  box-sizing: border-box;
+  max-height: 1200px; /* Máximo para pantallas grandes */
   margin: 0 auto;
 }
 
@@ -72,27 +73,15 @@ label {
   color: black;
 }
 
-/* Media query para pantallas pequeñas */
+/* Ajustes para tablets y móviles */
+@media (max-width: 1200px) {
+  #map {
+    height: 90vh;   /* Un poco menos para pantallas medias */
+  }
+}
+
 @media (max-width: 600px) {
   #map {
-    height: 60vh;    /* Altura menor en móviles */
-  }
-
-  .custom-layers-control {
-    width: 90vw;     /* Más ancho en móviles */
-    font-size: 10px; /* Texto más pequeño */
-  }
-
-  .layer-btn {
-    font-size: 10px;
-    padding: 4px;
-  }
-
-  label {
-    font-size: 10px;
-  }
-
-  .panel-title-image {
-    width: 120px;
+    height: 70vh;   /* Altura menor en móviles */
   }
 }
