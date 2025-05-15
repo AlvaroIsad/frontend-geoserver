@@ -133,7 +133,7 @@ L.Control.CustomLayers = L.Control.extend({
         // 📌 Título con imagen
         var titleContainer = L.DomUtil.create("div", "panel-title-container", container);
         var titleImage = L.DomUtil.create("img", "panel-title-image", titleContainer);
-        titleImage.src = "img/GALD PERFECTO.png"; // Ruta de la imagen
+        titleImage.src = "img/gald-perfecto.png"; // Ruta de la imagen
         titleImage.alt = "Título del Panel"; // Texto alternativo de la imagen
 
         // 📌 Sección Mapas Base (Desplegable)
@@ -476,8 +476,8 @@ map.on('click', function(e) {
 
         var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
             "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
-            "&LAYERS=clientes suministro,manzana,lotes" +   
-            "&QUERY_LAYERS=clientes suministro,manzana,lotes" +
+            "&LAYERS=clientes suministro" +   
+            "&QUERY_LAYERS=clientes suministro" +
             "&FORMAT=image/png&TRANSPARENT=true" +
             "&INFO_FORMAT=application/json" +  // <-- Cambiado a JSON
             "&FEATURE_COUNT=5" +
@@ -502,7 +502,7 @@ map.on('click', function(e) {
                 let modalInfo = "";
 
                 // Procesar solo el primer feature
-                let feature = data.features[1];
+                let feature = data.features[0];
                 let props = feature.properties;
                 let featureContent = "";
                 let hasValidData = false;
