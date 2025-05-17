@@ -474,12 +474,14 @@ map.on('click', function(e) {
         var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
         var size = map.getSize();
 
+        var layerName = encodeURIComponent("clientes suministro");
+
         var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
             "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
-            "&LAYERS=" + encodeURIComponent("clientes suministro") +
-            "&QUERY_LAYERS=" + encodeURIComponent("clientes suministro") +
+            "&LAYERS=" + layerName +
+            "&QUERY_LAYERS=" + layerName +
             "&FORMAT=image/png&TRANSPARENT=true" +
-            "&INFO_FORMAT=application/vnd.ogc.gml" +  // <-- ahora usando GML/XML
+            "&INFO_FORMAT=application/vnd.ogc.gml" +  // <-- formato XML/GML
             "&FEATURE_COUNT=5" +
             "&X=" + Math.floor(e.containerPoint.x) +
             "&Y=" + Math.floor(e.containerPoint.y) +
@@ -492,38 +494,32 @@ map.on('click', function(e) {
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-                return response.text(); // Ahora parseamos como texto XML
-            })
-            .then(text => {
-                // Parseamos el XML
+            .then(response => response.text())
+            .then(xmlText => {
                 const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(text, "application/xml");
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                const features = xmlDoc.getElementsByTagName("gml:featureMember");
 
-                // Obtener todos los elementos featureMember o gml:featureMember
-                const featureMembers = xmlDoc.getElementsByTagName("gml:featureMember");
-                if (featureMembers.length === 0) {
-                    console.warn("No se encontraron features en el XML.");
+                if (features.length === 0) {
+                    console.error("No se encontraron features en la respuesta XML.");
                     updateModalContent("No se encontraron datos.");
                     return;
                 }
 
                 let modalInfo = "";
-                const feature = featureMembers[0]; // solo el primero
-                const props = feature.children[0].children;
-                let featureContent = "";
 
-                for (let i = 0; i < props.length; i++) {
-                    const tag = props[i].tagName;
-                    const value = props[i].textContent;
-                    if (tag.toLowerCase() !== "the_geom" && value.trim() !== "") {
-                        featureContent += `<b style='font-size: 12px;'>${tag}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
+                const props = features[0].firstElementChild.children;
+                for (let prop of props) {
+                    if (prop.tagName.toLowerCase().includes("geom")) continue;
+
+                    let key = prop.tagName.split(":").pop();
+                    let value = prop.textContent;
+
+                    if (value && value.trim() !== "") {
+                        modalInfo += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
                     }
                 }
 
-                modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
-                console.log("Actualizando modal con la siguiente información:", modalInfo);
                 updateModalContent(modalInfo, "clientes suministro");
             })
             .catch(error => {
