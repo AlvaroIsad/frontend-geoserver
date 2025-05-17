@@ -459,73 +459,77 @@ function updateIdentityInfoBox(message) {
     }, 3000);
 }
 
-map.on('click', function(e) {
-    if (identityActive) {
+map.on('click', function (e) {
+    if (!identityActive) return;
 
-        proj4.defs([
-            ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
-            ["EPSG:32718", "+proj=utm +zone=18 +south +datum=WGS84 +units=m +no_defs"]
-        ]);
+    /* --- Definiciones de proyección --- */
+    proj4.defs([
+        ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
+        ["EPSG:32718", "+proj=utm +zone=18 +south +datum=WGS84 +units=m +no_defs"]
+    ]);
 
-        var bounds = map.getBounds();
-        var sw = proj4("EPSG:4326", "EPSG:32718", [bounds.getSouthWest().lng, bounds.getSouthWest().lat]);
-        var ne = proj4("EPSG:4326", "EPSG:32718", [bounds.getNorthEast().lng, bounds.getNorthEast().lat]);
+    /* --- Cálculo de BBOX en EPSG:32718 --- */
+    const bounds = map.getBounds();
+    const sw = proj4("EPSG:4326", "EPSG:32718",
+                     [bounds.getSouthWest().lng, bounds.getSouthWest().lat]);
+    const ne = proj4("EPSG:4326", "EPSG:32718",
+                     [bounds.getNorthEast().lng, bounds.getNorthEast().lat]);
 
-        var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
-        var size = map.getSize();
+    const bbox  = `${sw[0]},${sw[1]},${ne[0]},${ne[1]}`;
+    const size  = map.getSize();
+    const layer = encodeURIComponent("clientes suministro");   // <-- capa con espacio
 
-        var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
-            "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
-            "&LAYERS=clientes suministro" +   
-            "&QUERY_LAYERS=clientes suministro" +
-            "&FORMAT=image/png&TRANSPARENT=true" +
-            "&INFO_FORMAT=application/json" +  // <-- Cambiado a JSON
-            "&FEATURE_COUNT=5" +
-            "&X=" + Math.floor(e.containerPoint.x) +
-            "&Y=" + Math.floor(e.containerPoint.y) +
-            "&SRS=EPSG:32718" +
-            "&WIDTH=" + size.x +
-            "&HEIGHT=" + size.y +
-            "&BBOX=" + bbox;
+    /* --- Construcción de la URL GetFeatureInfo --- */
+    const url =
+        "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
+        "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
+        `&LAYERS=${layer}` +
+        `&QUERY_LAYERS=${layer}` +
+        "&FORMAT=image/png&TRANSPARENT=true" +
+        "&INFO_FORMAT=application/vnd.ogc.gml" +          // <-- ahora GML/XML
+        "&FEATURE_COUNT=5" +
+        `&X=${Math.floor(e.containerPoint.x)}` +
+        `&Y=${Math.floor(e.containerPoint.y)}` +
+        "&SRS=EPSG:32718" +
+        `&WIDTH=${size.x}` +
+        `&HEIGHT=${size.y}` +
+        `&BBOX=${bbox}`;
 
-        console.log("Clic en:", e.latlng);
-        console.log("URL generada:", url);
+    console.log("Clic en:", e.latlng);
+    console.log("URL generada:", url);
 
-        fetch(url)
-            .then(response => response.json())  // Parseamos como JSON
-            .then(data => {
-                if (!data.features || data.features.length === 0) {
-                    console.error("No se encontraron features en la respuesta JSON.");
-                    return;
-                }
+    /* --- Petición y parseo XML --- */
+    fetch(url)
+        .then(resp => resp.text())
+        .then(xmlText => {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-                let modalInfo = "";
+            const features = xmlDoc.getElementsByTagName("gml:featureMember");
+            if (features.length === 0) {
+                console.warn("No se encontraron features en la respuesta XML.");
+                updateModalContent("No se encontraron datos.");
+                return;
+            }
 
-                // Procesar solo el primer feature
-                let feature = data.features[0];
-                let props = feature.properties;
-                let featureContent = "";
-                let hasValidData = false;
+            const props = features[0].firstElementChild.children;
+            let modalInfo = "";
+            for (let i = 0; i < props.length; i++) {
+                const key = props[i].nodeName;
+                const val = props[i].textContent;
+                if (key.toLowerCase().includes("geom") || !val.trim()) continue;
+                modalInfo +=
+                    `<b style="font-size:12px;">${key}:</b> ` +
+                    `<span style="font-size:12px;">${val}</span><br>`;
+            }
 
-                for (const [key, value] of Object.entries(props)) {
-                    if (value !== null && value !== "" && key.toLowerCase() !== "the_geom") {
-                        featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
-                        hasValidData = true;
-                    }
-                }
-
-                if (hasValidData) {
-                    modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
-                }
-
-                console.log("Actualizando modal con la siguiente información:", modalInfo);
-                updateModalContent(modalInfo, "clientes suministro");
-            })
-            .catch(error => {
-                console.error("Error obteniendo la información:", error);
-                updateModalContent("Error al obtener datos del servidor.");
-            });
-    }
+            console.log("Actualizando modal con XML:", modalInfo);
+            updateModalContent(modalInfo, "clientes suministro");
+        })
+        .catch(err => {
+            console.error("Error obteniendo la información:", err);
+            updateModalContent("Error al obtener datos del servidor.");
+        });
 });
 
 // Variables para medición
