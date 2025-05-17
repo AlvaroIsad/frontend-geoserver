@@ -476,8 +476,8 @@ map.on('click', function(e) {
 
         var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
             "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
-            "&LAYERS=clientes suministro" +   
-            "&QUERY_LAYERS=clientes suministro" +
+            "&LAYERS=" + encodeURIComponent("clientes suministro") +
+            "&QUERY_LAYERS=" + encodeURIComponent("clientes suministro")
             "&FORMAT=image/png&TRANSPARENT=true" +
             "&INFO_FORMAT=application/json" +  // <-- Cambiado a JSON
             "&FEATURE_COUNT=5" +
@@ -492,39 +492,51 @@ map.on('click', function(e) {
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => response.json())  // Parseamos como JSON
-            .then(data => {
-                if (!data.features || data.features.length === 0) {
-                    console.error("No se encontraron features en la respuesta JSON.");
-                    return;
-                }
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
 
-                let modalInfo = "";
-
-                // Procesar solo el primer feature
-                let feature = data.features[0];
-                let props = feature.properties;
-                let featureContent = "";
-                let hasValidData = false;
-
-                for (const [key, value] of Object.entries(props)) {
-                    if (value !== null && value !== "" && key.toLowerCase() !== "the_geom") {
-                        featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
-                        hasValidData = true;
-                    }
-                }
-
-                if (hasValidData) {
-                    modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
-                }
-
-                console.log("Actualizando modal con la siguiente información:", modalInfo);
-                updateModalContent(modalInfo, "clientes suministro");
-            })
-            .catch(error => {
-                console.error("Error obteniendo la información:", error);
-                updateModalContent("Error al obtener datos del servidor.");
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return response.json();
+        } else {
+            return response.text().then(text => {
+                console.error("Respuesta no es JSON. Contenido recibido:", text);
+                throw new Error("Respuesta del servidor no es JSON");
             });
+        }
+    })
+    .then(data => {
+        if (!data.features || data.features.length === 0) {
+            console.error("No se encontraron features en la respuesta JSON.");
+            return;
+        }
+
+        let modalInfo = "";
+        let feature = data.features[0];
+        let props = feature.properties;
+        let featureContent = "";
+        let hasValidData = false;
+
+        for (const [key, value] of Object.entries(props)) {
+            if (value !== null && value !== "" && key.toLowerCase() !== "the_geom") {
+                featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
+                hasValidData = true;
+            }
+        }
+
+        if (hasValidData) {
+            modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
+        }
+
+        console.log("Actualizando modal con la siguiente información:", modalInfo);
+        updateModalContent(modalInfo, "clientes suministro");
+    })
+    .catch(error => {
+        console.error("Error obteniendo la información:", error);
+        updateModalContent("Error al obtener datos del servidor.");
+    });
     }
 });
 
