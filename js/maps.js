@@ -477,9 +477,9 @@ map.on('click', function(e) {
         var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
             "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
             "&LAYERS=" + encodeURIComponent("clientes suministro") +
-            "&QUERY_LAYERS=" + encodeURIComponent("clientes suministro")
+            "&QUERY_LAYERS=" + encodeURIComponent("clientes suministro") +
             "&FORMAT=image/png&TRANSPARENT=true" +
-            "&INFO_FORMAT=application/json" +  // <-- Cambiado a JSON
+            "&INFO_FORMAT=application/vnd.ogc.gml" +  // <-- ahora usando GML/XML
             "&FEATURE_COUNT=5" +
             "&X=" + Math.floor(e.containerPoint.x) +
             "&Y=" + Math.floor(e.containerPoint.y) +
@@ -492,51 +492,44 @@ map.on('click', function(e) {
         console.log("URL generada:", url);
 
         fetch(url)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-        }
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                return response.text(); // Ahora parseamos como texto XML
+            })
+            .then(text => {
+                // Parseamos el XML
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(text, "application/xml");
 
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-            return response.json();
-        } else {
-            return response.text().then(text => {
-                console.error("Respuesta no es JSON. Contenido recibido:", text);
-                throw new Error("Respuesta del servidor no es JSON");
+                // Obtener todos los elementos featureMember o gml:featureMember
+                const featureMembers = xmlDoc.getElementsByTagName("gml:featureMember");
+                if (featureMembers.length === 0) {
+                    console.warn("No se encontraron features en el XML.");
+                    updateModalContent("No se encontraron datos.");
+                    return;
+                }
+
+                let modalInfo = "";
+                const feature = featureMembers[0]; // solo el primero
+                const props = feature.children[0].children;
+                let featureContent = "";
+
+                for (let i = 0; i < props.length; i++) {
+                    const tag = props[i].tagName;
+                    const value = props[i].textContent;
+                    if (tag.toLowerCase() !== "the_geom" && value.trim() !== "") {
+                        featureContent += `<b style='font-size: 12px;'>${tag}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
+                    }
+                }
+
+                modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
+                console.log("Actualizando modal con la siguiente información:", modalInfo);
+                updateModalContent(modalInfo, "clientes suministro");
+            })
+            .catch(error => {
+                console.error("Error obteniendo la información:", error);
+                updateModalContent("Error al obtener datos del servidor.");
             });
-        }
-    })
-    .then(data => {
-        if (!data.features || data.features.length === 0) {
-            console.error("No se encontraron features en la respuesta JSON.");
-            return;
-        }
-
-        let modalInfo = "";
-        let feature = data.features[0];
-        let props = feature.properties;
-        let featureContent = "";
-        let hasValidData = false;
-
-        for (const [key, value] of Object.entries(props)) {
-            if (value !== null && value !== "" && key.toLowerCase() !== "the_geom") {
-                featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
-                hasValidData = true;
-            }
-        }
-
-        if (hasValidData) {
-            modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
-        }
-
-        console.log("Actualizando modal con la siguiente información:", modalInfo);
-        updateModalContent(modalInfo, "clientes suministro");
-    })
-    .catch(error => {
-        console.error("Error obteniendo la información:", error);
-        updateModalContent("Error al obtener datos del servidor.");
-    });
     }
 });
 
