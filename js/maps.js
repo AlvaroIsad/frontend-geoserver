@@ -463,8 +463,8 @@ map.on('click', function(e) {
     if (identityActive) {
 
         proj4.defs([
-            ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
-            ["EPSG:32718", "+proj=utm +zone=18 +south +datum=WGS84 +units=m +no_defs"]
+        ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
+        ["EPSG:32718", "+proj=utm +zone=18 +south +datum=WGS84 +units=m +no_defs"]
         ]);
 
         var bounds = map.getBounds();
@@ -474,63 +474,78 @@ map.on('click', function(e) {
         var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
         var size = map.getSize();
 
-        const layerName = encodeURIComponent("clientes suministro");
-
-        var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
+        var url = "http://localhost:8080/geoserver/prueba/wms?" +
             "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
-            `&LAYERS=${layerName}&QUERY_LAYERS=${layerName}` +
+            "&LAYERS=clientes suministro" +   
+            "&QUERY_LAYERS=clientes suministro" +
             "&FORMAT=image/png&TRANSPARENT=true" +
-            "&INFO_FORMAT=application/vnd.ogc.gml" +  // <-- XML
+            "&INFO_FORMAT=text/xml" +  // JSON para facilidad de manejo
             "&FEATURE_COUNT=5" +
             "&X=" + Math.floor(e.containerPoint.x) +
             "&Y=" + Math.floor(e.containerPoint.y) +
             "&SRS=EPSG:32718" +
             "&WIDTH=" + size.x +
             "&HEIGHT=" + size.y +
-            "&BBOX=" + bbox;
+            "&BBOX=" + bbox
 
         console.log("Clic en:", e.latlng);
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => response.text())  // <-- Parseamos como texto (XML)
-            .then(xmlText => {
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            .then(response => response.text())  // Obtenemos la respuesta como texto
+            .then(text => {
+                let parser = new DOMParser();
+                let xmlDoc = parser.parseFromString(text, "text/xml");
 
-                const featureMembers = xmlDoc.getElementsByTagName("gml:featureMember");
-                if (featureMembers.length === 0) {
-                    console.error("No se encontraron features en la respuesta XML.");
-                    updateModalContent("No se encontraron datos.");
+                console.log(new XMLSerializer().serializeToString(xmlDoc)); // Muestra el XML en consola
+
+                let features = xmlDoc.getElementsByTagNameNS("http://www.opengis.net/gml", "featureMember");
+
+                if (features.length === 0) {
+                    console.error("No se encontraron FeatureMembers en la respuesta XML.");
+                    //updateModalContent("No se encontraron datos en esta ubicación.");
                     return;
                 }
 
                 let modalInfo = "";
+                let layerType = ''; // Para almacenar el tipo de capa
 
-                // Procesamos solo el primer feature
-                const firstFeature = featureMembers[0].firstElementChild;
-                let featureContent = "";
-                let hasValidData = false;
+                    for (let feature of features) {
+                        let attributes = feature.firstElementChild.children; // Atributos de la capa
+                        let featureContent = ""; // Agregar espacio entre elementos
+                        let hasValidData = false; // Variable para verificar si hay datos válidos
 
-                for (let i = 0; i < firstFeature.children.length; i++) {
-                    const child = firstFeature.children[i];
-                    const key = child.localName;
-                    const value = child.textContent;
+                        for (let attr of attributes) {
+                            let fieldName = attr.tagName.replace("prueba:", ""); // Eliminar el prefijo "prueba:"
+                            let fieldValue = attr.textContent.trim();
 
-                    if (value && key.toLowerCase() !== "the_geom") {
-                        featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
-                        hasValidData = true;
+                            if (fieldValue && fieldName.toLowerCase() !== "the_geom") {  // Ignorar "the_geom"
+                                featureContent += `<b style='font-size: 12px;'>${fieldName}:</b> <span style='font-size: 12px;'>${fieldValue}</span><br>`;
+                                hasValidData = true; // Marcar que este feature tiene datos válidos
+                            }
+                        }
+
+                        if (hasValidData) { 
+                            modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`; // Solo agregar si tiene datos
+                        }
+
+                        // Intentamos extraer el 'name' de la capa desde la respuesta
+                        let layerNameElement = feature.getElementsByTagName("name");
+                        if (layerNameElement.length > 0) {
+                            layerType = layerNameElement[0].textContent.toLowerCase();
+                        }
                     }
-                }
+                    // Si no se ha encontrado un 'layerType', asumimos 'FICHAS' por defecto
+                    if (!layerType) {
+                        layerType = "clientes suministro";
+                    }
 
-                if (hasValidData) {
-                    modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
-                }
+                console.log("Actualizando modal con la siguiente información:", modalInfo, "y tipo de capa:", layerType);
 
-                console.log("Actualizando modal con la siguiente información:", modalInfo);
-                updateModalContent(modalInfo, "clientes suministro");
+
+                updateModalContent(modalInfo, layerType);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Error obteniendo la información:", error);
                 updateModalContent("Error al obtener datos del servidor.");
             });
