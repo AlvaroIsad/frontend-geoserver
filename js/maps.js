@@ -612,7 +612,7 @@ document.getElementById("inscripSearchBtn").onclick = function() {
 
   // Construimos un WFS/GetFeature con filtro CQL para la capa clientes suministro
   var layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
-  var cql = encodeURIComponent(inscripcion='${numero}'); 
+  var cql = encodeURIComponent(INSCRIPCION='${numero}'); 
   var url = `
     https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/
     geoserver/catastro_huaraz/ows?
