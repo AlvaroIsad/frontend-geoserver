@@ -468,59 +468,61 @@ map.on('click', function(e) {
         ]);
 
         var bounds = map.getBounds();
+
+        // Convertir SW y NE a EPSG:32718
         var sw = proj4("EPSG:4326", "EPSG:32718", [bounds.getSouthWest().lng, bounds.getSouthWest().lat]);
         var ne = proj4("EPSG:4326", "EPSG:32718", [bounds.getNorthEast().lng, bounds.getNorthEast().lat]);
 
-        var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
+        // Definir minY, minX, maxY, maxX para WMS 1.3.0 (orden lat,long)
+        var minX = sw[0];  // longitud mínima
+        var minY = sw[1];  // latitud mínima
+        var maxX = ne[0];  // longitud máxima
+        var maxY = ne[1];  // latitud máxima
+
         var size = map.getSize();
 
         const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
 
         var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?
-		SERVICE=WMS&
-		VERSION=1.3.0&
-		REQUEST=GetFeatureInfo&
-		LAYERS=${layerName}&
-		QUERY_LAYERS=${layerName}&
-		TRANSPARENT=true&
-		INFO_FORMAT=application/json&
-		FEATURE_COUNT=10&
-		I=${Math.floor(e.containerPoint.x)}&
-		J=${Math.floor(e.containerPoint.y)}&
-		CRS=EPSG:32718&
-		WIDTH=${size.x}&
-		HEIGHT=${size.y}&
-		BBOX=${minY},${minX},${maxY},${maxX}`;
+	SERVICE=WMS&
+	VERSION=1.3.0&
+	REQUEST=GetFeatureInfo&
+	LAYERS=${layerName}&
+	QUERY_LAYERS=${layerName}&
+	TRANSPARENT=true&
+	INFO_FORMAT=application/json&
+	FEATURE_COUNT=10&
+	I=${Math.floor(e.containerPoint.x)}&
+	J=${Math.floor(e.containerPoint.y)}&
+	CRS=EPSG:32718&
+	WIDTH=${size.x}&
+	HEIGHT=${size.y}&
+	BBOX=${minY},${minX},${maxY},${maxX}`;
 
         console.log("Clic en:", e.latlng);
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => response.text())
-            .then(xmlText => {
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-                const featureMembers = xmlDoc.getElementsByTagName("gml:featureMember");
-                if (featureMembers.length === 0) {
-                    console.error("No se encontraron features en la respuesta XML.");
+            .then(response => response.json())  // Cambié a JSON porque pusiste INFO_FORMAT=json
+            .then(data => {
+                if (!data.features || data.features.length === 0) {
+                    console.error("No se encontraron features en la respuesta JSON.");
                     updateModalContent("No se encontraron datos.");
                     return;
                 }
 
                 let modalInfo = "";
-                const firstFeature = featureMembers[0].firstElementChild;
+                const firstFeature = data.features[0];
                 let featureContent = "";
                 let hasValidData = false;
 
-                for (let i = 0; i < firstFeature.children.length; i++) {
-                    const child = firstFeature.children[i];
-                    const key = child.localName;
-                    const value = child.textContent;
-
-                    if (value && key.toLowerCase() !== "the_geom") {
-                        featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
-                        hasValidData = true;
+                for (const key in firstFeature.properties) {
+                    if (firstFeature.properties.hasOwnProperty(key)) {
+                        const value = firstFeature.properties[key];
+                        if (value != null) {
+                            featureContent += `<b style='font-size: 12px;'>${key}:</b> <span style='font-size: 12px;'>${value}</span><br>`;
+                            hasValidData = true;
+                        }
                     }
                 }
 
