@@ -459,7 +459,7 @@ function updateIdentityInfoBox(message) {
     }, 3000);
 }
 
-ap.on('click', function(e) {
+map.on('click', function(e) {
     if (identityActive) {
         proj4.defs([
             ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
