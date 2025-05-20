@@ -333,6 +333,7 @@ searchHeader.innerHTML = "🔍 BUSCAR INSCRIPCIÓN";
 var closeSearchBtn = document.createElement("button");
 closeSearchBtn.innerHTML = "❌";
 closeSearchBtn.style.background = "transparent";
+closeSearchBtn.style.top = "20px";
 closeSearchBtn.style.position = "absolute";
 closeSearchBtn.style.right = "25px";
 closeSearchBtn.style.border = "none";
@@ -350,7 +351,7 @@ var searchContent = document.createElement("div");
 searchContent.style.marginTop = "15px";
 searchContent.innerHTML = `
   <label for="inscripInput">Número de Inscripción:</label><br>
-  <input type="text" id="inscripInput" style="width:100%; padding:6px; margin:8px 0;"><br>
+  <input type="text" id="inscripInput" style="width:100%; padding:6px; margin:8px 0;border:1px solid #000;border-radius:4px;box-sizing:border-box;"><br>
   <button id="inscripSearchBtn" style="padding:8px 16px;">Buscar</button>
 `;
 searchModal.appendChild(searchContent);
