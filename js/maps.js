@@ -472,7 +472,7 @@ map.on("click", async (e) => {
   const [maxX, maxY] = proj4("EPSG:4326", "EPSG:32718", [b.getNorthEast().lng, b.getNorthEast().lat]);
 
   // 3️⃣ Parámetros GetFeatureInfo
-  const layerName = "catastro_huaraz:clientes_suministro";   // sin espacios
+  const layerName = "catastro_huaraz:clientes suministro";   // sin espacios
   const size      = map.getSize();
   const params = new URLSearchParams({
     SERVICE:       "WMS",
@@ -510,7 +510,7 @@ map.on("click", async (e) => {
                         .map(([k,v]) => `<b style="font-size:12px">${k}:</b> <span style="font-size:12px">${v}</span><br>`)
                         .join("");
 
-    updateModalContent(`<div style="margin-bottom:10px">${html}</div>`, "clientes_suministro");
+    updateModalContent(`<div style="margin-bottom:10px">${html}</div>`, "clientes suministro");
   } catch (err) {
     console.error(err);
     updateModalContent("Error al obtener datos del servidor.");
