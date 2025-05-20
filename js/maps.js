@@ -644,9 +644,10 @@ document.getElementById("inscripSearchBtn").onclick = function() {
   var numero = document.getElementById("inscripInput").value.trim();
   if (!numero) return alert("Introduce un número de inscripción.");
 
-  // Construimos un WFS/GetFeature con filtro CQL para la capa clientes suministro
   var layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
-  var cql = encodeURIComponent(INSCRIPCION='${numero}'); 
+  var cql = `INSCRIPCION='${numero}'`;
+  var encodedCql = encodeURIComponent(cql);
+
   var url = `
     https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/
     geoserver/catastro_huaraz/ows?
@@ -655,30 +656,35 @@ document.getElementById("inscripSearchBtn").onclick = function() {
     request=GetFeature&
     typeName=${layerName}&
     outputFormat=application/json&
-    cql_filter=${cql}
+    cql_filter=${encodedCql}
   `.replace(/\s+/g, '');
 
+  console.log("Consultando URL:", url); // <-- útil para depurar
+
   fetch(url)
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+      return r.json();
+    })
     .then(data => {
       if (!data.features || data.features.length === 0) {
         return alert("No se encontró la inscripción especificada.");
       }
-      // Si hay geometría, la añadimos y hacemos fitBounds
+
       var feat = data.features[0];
       var geojson = L.geoJSON(feat, {
         style: { color: "#f00", weight: 3 }
       }).addTo(map);
       map.fitBounds(geojson.getBounds(), { maxZoom: 18 });
 
-      // Cerramos modal
       document.getElementById("searchModal").style.display = "none";
     })
     .catch(err => {
-      console.error(err);
+      console.error("Error en la solicitud:", err);
       alert("Error en la búsqueda. Revisa la consola.");
     });
 };
+
 
 // Variables para medición
 var measuring = false;
