@@ -474,20 +474,23 @@ map.on('click', function(e) {
         var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
         var size = map.getSize();
 
-        const layerName = encodeURIComponent("clientes suministro");
+        const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
 
         var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?
-        SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo
-        &LAYERS=${layerName}&QUERY_LAYERS=${layerName}
-        &TRANSPARENT=true
-        &INFO_FORMAT=application/vnd.ogc.gml
-        &FEATURE_COUNT=10
-        &X=${Math.floor(e.containerPoint.x)}
-        &Y=${Math.floor(e.containerPoint.y)}
-        &SRS=EPSG:32718
-        &WIDTH=${size.x}
-        &HEIGHT=${size.y}
-        &BBOX=${bbox}`;
+		SERVICE=WMS&
+		VERSION=1.3.0&
+		REQUEST=GetFeatureInfo&
+		LAYERS=${layerName}&
+		QUERY_LAYERS=${layerName}&
+		TRANSPARENT=true&
+		INFO_FORMAT=application/json&
+		FEATURE_COUNT=10&
+		I=${Math.floor(e.containerPoint.x)}&
+		J=${Math.floor(e.containerPoint.y)}&
+		CRS=EPSG:32718&
+		WIDTH=${size.x}&
+		HEIGHT=${size.y}&
+		BBOX=${minY},${minX},${maxY},${maxX}`;
 
         console.log("Clic en:", e.latlng);
         console.log("URL generada:", url);
