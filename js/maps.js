@@ -461,7 +461,6 @@ function updateIdentityInfoBox(message) {
 
 map.on('click', function(e) {
     if (identityActive) {
-
         proj4.defs([
             ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
             ["EPSG:32718", "+proj=utm +zone=18 +south +datum=WGS84 +units=m +no_defs"]
@@ -480,34 +479,53 @@ map.on('click', function(e) {
         var maxY = ne[1];  // latitud máxima
 
         var size = map.getSize();
-
-        const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
+        
+        // Usar nombre de capa con escape adecuado
+        const layerName = "catastro_huaraz:clientes suministro";
+        
+        // Coordenadas de clic en formato UTM
+        var clickUTM = proj4("EPSG:4326", "EPSG:32718", [e.latlng.lng, e.latlng.lat]);
+        console.log("Clic en UTM:", clickUTM);
 
         var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?` +
-	    `SERVICE=WMS&` +
-	    `VERSION=1.3.0&` +
-	    `REQUEST=GetFeatureInfo&` +
-	    `LAYERS=${layerName}&` +
-	    `QUERY_LAYERS=${layerName}&` +
-	    `TRANSPARENT=true&` +
-	    `INFO_FORMAT=application/json&` +
-	    `FEATURE_COUNT=10&` +
-	    `I=${Math.floor(e.containerPoint.x)}&` +
-	    `J=${Math.floor(e.containerPoint.y)}&` +
-	    `CRS=EPSG:32718&` +
-	    `WIDTH=${size.x}&` +
-	    `HEIGHT=${size.y}&` +
-	    `BBOX=${minX},${minY},${maxX},${maxY}`;
+            `SERVICE=WMS&` +
+            `VERSION=1.3.0&` +
+            `REQUEST=GetFeatureInfo&` +
+            `LAYERS=${layerName}&` +
+            `QUERY_LAYERS=${layerName}&` +
+            `TRANSPARENT=true&` +
+            `INFO_FORMAT=application/json&` +
+            `FEATURE_COUNT=10&` +
+            `I=${Math.floor(e.containerPoint.x)}&` +
+            `J=${Math.floor(e.containerPoint.y)}&` +
+            `CRS=EPSG:32718&` +
+            `WIDTH=${size.x}&` +
+            `HEIGHT=${size.y}&` +
+            `BBOX=${minX},${minY},${maxX},${maxY}`;
 
         console.log("Clic en:", e.latlng);
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => response.json())  // Cambié a JSON porque pusiste INFO_FORMAT=json
+            .then(response => {
+                // Verificar si la respuesta es exitosa
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+                
+                // Verificar el tipo de contenido
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Si no es JSON, lanzar error
+                    throw new Error(`Tipo de contenido inesperado: ${contentType}`);
+                }
+            })
             .then(data => {
                 if (!data.features || data.features.length === 0) {
-                    console.error("No se encontraron features en la respuesta JSON.");
-                    updateModalContent("No se encontraron datos.");
+                    console.log("No se encontraron features en la respuesta JSON.");
+                    updateModalContent("No se encontraron datos en esta ubicación.");
                     return;
                 }
 
@@ -530,12 +548,12 @@ map.on('click', function(e) {
                     modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
                 }
 
-                console.log("Actualizando modal con la siguiente información:", modalInfo);
-                updateModalContent(modalInfo, "clientes suministro");
+                console.log("Actualizando modal con:", modalInfo);
+                updateModalContent(modalInfo, "Información del Cliente");
             })
             .catch(error => {
                 console.error("Error obteniendo la información:", error);
-                updateModalContent("Error al obtener datos del servidor.");
+                updateModalContent("Error al obtener datos del servidor: " + error.message);
             });
     }
 });
