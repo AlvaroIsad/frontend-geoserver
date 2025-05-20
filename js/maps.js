@@ -474,26 +474,26 @@ map.on('click', function(e) {
         var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
         var size = map.getSize();
 
-        const layerName = encodeURIComponent("clientes suministro");
+        const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
 
-        var url = "https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?" +
-            "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
-            `&LAYERS=${layerName}&QUERY_LAYERS=${layerName}` +
-            "&FORMAT=image/png&TRANSPARENT=true" +
-            "&INFO_FORMAT=application/vnd.ogc.gml" +  // <-- XML
-            "&FEATURE_COUNT=5" +
-            "&X=" + Math.floor(e.containerPoint.x) +
-            "&Y=" + Math.floor(e.containerPoint.y) +
-            "&SRS=EPSG:32718" +
-            "&WIDTH=" + size.x +
-            "&HEIGHT=" + size.y +
-            "&BBOX=" + bbox;
+        var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?
+        SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo
+        &LAYERS=${layerName}&QUERY_LAYERS=${layerName}
+        &TRANSPARENT=true
+        &INFO_FORMAT=application/vnd.ogc.gml
+        &FEATURE_COUNT=10
+        &X=${Math.floor(e.containerPoint.x)}
+        &Y=${Math.floor(e.containerPoint.y)}
+        &SRS=EPSG:32718
+        &WIDTH=${size.x}
+        &HEIGHT=${size.y}
+        &BBOX=${bbox}`;
 
         console.log("Clic en:", e.latlng);
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => response.text())  // <-- Parseamos como texto (XML)
+            .then(response => response.text())
             .then(xmlText => {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, "text/xml");
@@ -506,8 +506,6 @@ map.on('click', function(e) {
                 }
 
                 let modalInfo = "";
-
-                // Procesamos solo el primer feature
                 const firstFeature = featureMembers[0].firstElementChild;
                 let featureContent = "";
                 let hasValidData = false;
