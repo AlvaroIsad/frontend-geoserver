@@ -328,7 +328,7 @@ searchHeader.style.background = "#007bff";
 searchHeader.style.color = "white";
 searchHeader.style.padding = "10px";
 searchHeader.style.fontWeight = "bold";
-searchHeader.innerHTML = "🔍 Buscar INSCRIPCIÓN";
+searchHeader.innerHTML = "🔍 BUSCAR INSCRIPCIÓN";
 
 var closeSearchBtn = document.createElement("button");
 closeSearchBtn.innerHTML = "❌";
@@ -352,6 +352,9 @@ searchContent.innerHTML = `
   <button id="inscripSearchBtn" style="padding:8px 16px;">Buscar</button>
 `;
 searchModal.appendChild(searchContent);
+
+var inscripLabel = searchContent.querySelector('label[for="inscripInput"]');
+inscripLabel.style.color = 'black';
 
 // Añadimos el modal al body
 document.body.appendChild(searchModal);
