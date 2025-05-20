@@ -481,7 +481,7 @@ map.on('click', function(e) {
         var size = map.getSize();
         
         // Usar nombre de capa con escape adecuado
-        const layerName = "catastro_huaraz:clientes suministro";
+        const layerName = "catastro_huaraz:clientes%20suministro";
         
         // Coordenadas de clic en formato UTM
         var clickUTM = proj4("EPSG:4326", "EPSG:32718", [e.latlng.lng, e.latlng.lat]);
