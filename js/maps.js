@@ -459,7 +459,7 @@ function updateIdentityInfoBox(message) {
     }, 3000);
 }
 
-map.on('click', function(e) {
+ap.on('click', function(e) {
     if (identityActive) {
         proj4.defs([
             ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
@@ -467,32 +467,25 @@ map.on('click', function(e) {
         ]);
 
         var bounds = map.getBounds();
-
-        // Convertir SW y NE a EPSG:32718
         var sw = proj4("EPSG:4326", "EPSG:32718", [bounds.getSouthWest().lng, bounds.getSouthWest().lat]);
         var ne = proj4("EPSG:4326", "EPSG:32718", [bounds.getNorthEast().lng, bounds.getNorthEast().lat]);
 
-        // Definir minY, minX, maxY, maxX para WMS 1.3.0 (orden lat,long)
-        var minX = sw[0];  // longitud mínima
-        var minY = sw[1];  // latitud mínima
-        var maxX = ne[0];  // longitud máxima
-        var maxY = ne[1];  // latitud máxima
+        var minX = sw[0];
+        var minY = sw[1];
+        var maxX = ne[0];
+        var maxY = ne[1];
 
         var size = map.getSize();
         
-        // Usar nombre de capa con escape adecuado
+        // No usar encodeURIComponent aquí - usar el formato exacto que espera GeoServer
         const layerName = "catastro_huaraz:clientes%20suministro";
         
-        // Coordenadas de clic en formato UTM
-        var clickUTM = proj4("EPSG:4326", "EPSG:32718", [e.latlng.lng, e.latlng.lat]);
-        console.log("Clic en UTM:", clickUTM);
-
         var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?` +
             `SERVICE=WMS&` +
             `VERSION=1.3.0&` +
             `REQUEST=GetFeatureInfo&` +
-            `LAYERS=${layerName}&` +
-            `QUERY_LAYERS=${layerName}&` +
+            `LAYERS=${encodeURIComponent(layerName)}&` + 
+            `QUERY_LAYERS=${encodeURIComponent(layerName)}&` +
             `TRANSPARENT=true&` +
             `INFO_FORMAT=application/json&` +
             `FEATURE_COUNT=10&` +
@@ -508,23 +501,43 @@ map.on('click', function(e) {
 
         fetch(url)
             .then(response => {
-                // Verificar si la respuesta es exitosa
                 if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.status}`);
+                    console.error(`Error HTTP: ${response.status}`);
                 }
                 
                 // Verificar el tipo de contenido
                 const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return response.json();
-                } else {
-                    // Si no es JSON, lanzar error
-                    throw new Error(`Tipo de contenido inesperado: ${contentType}`);
-                }
+                console.log("Tipo de contenido recibido:", contentType);
+                
+                // Primero obtener el texto para depuración
+                return response.text().then(text => {
+                    console.log("Respuesta del servidor:", text.substring(0, 500) + "..."); // Primeros 500 caracteres
+                    
+                    // Si es JSON, parsearlo
+                    if (contentType && contentType.includes('application/json')) {
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            console.error("Error al parsear JSON:", e);
+                            throw new Error("Formato JSON inválido en la respuesta");
+                        }
+                    } else {
+                        // Si el HTML contiene algún mensaje de error específico, extraerlo
+                        let errorMsg = "Tipo de contenido incorrecto: " + contentType;
+                        if (text.includes("Error") || text.includes("Exception")) {
+                            // Tratar de extraer un mensaje de error más específico
+                            const errorMatch = text.match(/<[^>]*>(Error|Exception)[^<]*<\/[^>]*>/i);
+                            if (errorMatch) {
+                                errorMsg = errorMatch[0].replace(/<\/?[^>]+(>|$)/g, "");
+                            }
+                        }
+                        updateModalContent("Error al obtener datos: " + errorMsg);
+                        throw new Error(errorMsg);
+                    }
+                });
             })
             .then(data => {
                 if (!data.features || data.features.length === 0) {
-                    console.log("No se encontraron features en la respuesta JSON.");
                     updateModalContent("No se encontraron datos en esta ubicación.");
                     return;
                 }
@@ -548,12 +561,11 @@ map.on('click', function(e) {
                     modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
                 }
 
-                console.log("Actualizando modal con:", modalInfo);
                 updateModalContent(modalInfo, "Información del Cliente");
             })
             .catch(error => {
-                console.error("Error obteniendo la información:", error);
-                updateModalContent("Error al obtener datos del servidor: " + error.message);
+                console.error("Error completo:", error);
+                updateModalContent("Error al obtener datos del servidor. Consulta la consola para más detalles.");
             });
     }
 });
