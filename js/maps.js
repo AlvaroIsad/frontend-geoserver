@@ -334,7 +334,6 @@ var closeSearchBtn = document.createElement("button");
 closeSearchBtn.innerHTML = "❌";
 closeSearchBtn.style.background = "transparent";
 closeSearchBtn.style.position = "absolute";
-closeSearchBtn.style.top = "20px";
 closeSearchBtn.style.right = "25px";
 closeSearchBtn.style.border = "none";
 closeSearchBtn.style.color = "white";
@@ -361,6 +360,37 @@ inscripLabel.style.color = 'black';
 
 // Añadimos el modal al body
 document.body.appendChild(searchModal);
+
+// Variables de estado para arrastrar
+var isSearchDragging = false,
+    searchOffsetX = 0,
+    searchOffsetY = 0;
+
+// Cuando el usuario presiona el ratón sobre el header…
+searchHeader.onmousedown = function(e) {
+  isSearchDragging = true;
+  // Calculamos el offset entre el punto de clic y la esquina del modal
+  searchOffsetX = e.clientX - searchModal.getBoundingClientRect().left;
+  searchOffsetY = e.clientY - searchModal.getBoundingClientRect().top;
+  searchModal.style.cursor = "grabbing";
+};
+
+// Al mover el ratón por toda la página…
+document.addEventListener("mousemove", function(e) {
+  if (!isSearchDragging) return;
+  // Reposicionamos el modal
+  searchModal.style.left = (e.clientX - searchOffsetX) + "px";
+  searchModal.style.top  = (e.clientY - searchOffsetY) + "px";
+  // Desactivamos el transform: translate central
+  searchModal.style.transform = "none";
+});
+
+// Cuando suelta el ratón…
+document.addEventListener("mouseup", function() {
+  if (!isSearchDragging) return;
+  isSearchDragging = false;
+  searchModal.style.cursor = "grab";
+});
 
 // Crear la ventana modal para la información
 var modal = document.createElement("div");
