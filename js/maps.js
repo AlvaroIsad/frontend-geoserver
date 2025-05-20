@@ -254,7 +254,7 @@ L.Control.CustomLayers = L.Control.extend({
 
 	// 🔹 BOTÓN BÚSQUEDA INSCRIPCIÓN
 	var searchButton = L.DomUtil.create("button", "layer-btn", toolsContent);
-	searchButton.innerHTML = "🔍 Buscar INSCRIPCIÓN";
+	searchButton.innerHTML = "🔍 Buscar";
 	searchButton.onclick = function () {
 		// Mostrar el modal de búsqueda
 	document.getElementById("searchModal").style.display = "block";
@@ -300,6 +300,34 @@ function toggleMapLock(lock) {
         mapLocked = false;
     }
 }
+
+// Modal para búsqueda de inscripción
+var searchModal = document.createElement("div");
+searchModal.id = "searchModal";
+searchModal.style = modal.style;      // Reutiliza estilos base del modal existente
+searchModal.style.display = "none";
+
+// Header
+var searchHeader = document.createElement("div");
+searchHeader.style = modalHeader.style; // Reutiliza estilos del header
+searchHeader.innerHTML = "🔍 Buscar INSCRIPCIÓN";
+searchModal.appendChild(searchHeader);
+
+// Close button
+var closeSearchBtn = closeModalBtn.cloneNode(true);
+closeSearchBtn.onclick = () => { searchModal.style.display = "none"; };
+searchHeader.appendChild(closeSearchBtn);
+
+// Content: input + button
+var searchContent = document.createElement("div");
+searchContent.style.marginTop = "15px";
+searchContent.innerHTML = `
+  <label for="inscripInput">Número de Inscripción:</label><br>
+  <input type="text" id="inscripInput" style="width:80%; padding:4px; margin:8px 0;"><br>
+  <button id="inscripSearchBtn" style="padding:6px 12px;">Buscar</button>
+`;
+searchModal.appendChild(searchContent);
+document.body.appendChild(searchModal);
 
 // Crear la ventana modal para la información
 var modal = document.createElement("div");
