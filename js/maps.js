@@ -301,32 +301,59 @@ function toggleMapLock(lock) {
     }
 }
 
-// Modal para búsqueda de inscripción
 var searchModal = document.createElement("div");
 searchModal.id = "searchModal";
-searchModal.style = modal.style;      // Reutiliza estilos base del modal existente
+// Reutilizamos estilos base del modal de identidad
+searchModal.style.position = "fixed";
+searchModal.style.top = "50%";
+searchModal.style.left = "50%";
+searchModal.style.transform = "translate(-50%, -50%)";
+searchModal.style.background = "#fff";
+searchModal.style.padding = "20px";
+searchModal.style.border = "1px solid black";
+searchModal.style.borderRadius = "8px";
+searchModal.style.boxShadow = "2px 2px 10px rgba(0,0,0,0.5)";
 searchModal.style.display = "none";
+searchModal.style.zIndex = "1000";
+searchModal.style.width = "400px";
+searchModal.style.maxWidth = "90%";
+searchModal.style.maxHeight = "80%";
+searchModal.style.overflow = "auto";
+searchModal.style.fontSize = "14px";
 
-// Header
+// Header y botón de cerrar
 var searchHeader = document.createElement("div");
-searchHeader.style = modalHeader.style; // Reutiliza estilos del header
+searchHeader.style.cursor = "grab";
+searchHeader.style.background = "#007bff";
+searchHeader.style.color = "white";
+searchHeader.style.padding = "10px";
+searchHeader.style.fontWeight = "bold";
 searchHeader.innerHTML = "🔍 Buscar INSCRIPCIÓN";
+
+var closeSearchBtn = document.createElement("button");
+closeSearchBtn.innerHTML = "❌";
+closeSearchBtn.style.background = "transparent";
+closeSearchBtn.style.border = "none";
+closeSearchBtn.style.color = "white";
+closeSearchBtn.style.fontSize = "18px";
+closeSearchBtn.style.cursor = "pointer";
+closeSearchBtn.onclick = function() {
+  searchModal.style.display = "none";
+};
+searchHeader.appendChild(closeSearchBtn);
 searchModal.appendChild(searchHeader);
 
-// Close button
-var closeSearchBtn = closeModalBtn.cloneNode(true);
-closeSearchBtn.onclick = () => { searchModal.style.display = "none"; };
-searchHeader.appendChild(closeSearchBtn);
-
-// Content: input + button
+// Contenido: input + botón buscar
 var searchContent = document.createElement("div");
 searchContent.style.marginTop = "15px";
 searchContent.innerHTML = `
   <label for="inscripInput">Número de Inscripción:</label><br>
-  <input type="text" id="inscripInput" style="width:80%; padding:4px; margin:8px 0;"><br>
-  <button id="inscripSearchBtn" style="padding:6px 12px;">Buscar</button>
+  <input type="text" id="inscripInput" style="width:100%; padding:6px; margin:8px 0;"><br>
+  <button id="inscripSearchBtn" style="padding:8px 16px;">Buscar</button>
 `;
 searchModal.appendChild(searchContent);
+
+// Añadimos el modal al body
 document.body.appendChild(searchModal);
 
 // Crear la ventana modal para la información
