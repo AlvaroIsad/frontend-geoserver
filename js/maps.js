@@ -640,7 +640,7 @@ map.on('click', function(e) {
     }
 });
 
-document.getElementById("inscripSearchBtn").onclick = function() {
+document.getElementById("inscripSearchBtn").onclick = function () {
   var numero = document.getElementById("inscripInput").value.trim();
   if (!numero) return alert("Introduce un número de inscripción.");
 
@@ -655,35 +655,25 @@ document.getElementById("inscripSearchBtn").onclick = function() {
     version=1.1.0&
     request=GetFeature&
     typeName=${layerName}&
-    outputFormat=application/json&
+    outputFormat=text/xml; subtype=gml/3.1.1&
     cql_filter=${encodedCql}
   `.replace(/\s+/g, '');
 
-  console.log("Consultando URL:", url); // <-- útil para depurar
+  console.log("Consultando URL:", url);
 
-  fetch(url)
-    .then(r => {
-      if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-      return r.json();
-    })
-    .then(data => {
-      if (!data.features || data.features.length === 0) {
-        return alert("No se encontró la inscripción especificada.");
-      }
-
-      var feat = data.features[0];
-      var geojson = L.geoJSON(feat, {
-        style: { color: "#f00", weight: 3 }
-      }).addTo(map);
-      map.fitBounds(geojson.getBounds(), { maxZoom: 18 });
-
+  // Cargar el GML directamente en el mapa usando omnivore
+  omnivore.gml(url)
+    .on('ready', function () {
+      this.setStyle({ color: "#f00", weight: 3 });
+      map.fitBounds(this.getBounds(), { maxZoom: 18 });
       document.getElementById("searchModal").style.display = "none";
     })
-    .catch(err => {
-      console.error("Error en la solicitud:", err);
-      alert("Error en la búsqueda. Revisa la consola.");
+    .on('error', function (err) {
+      console.error("Error al cargar GML:", err);
+      alert("Error al cargar los datos GML. Revisa la consola.");
     });
 };
+
 
 
 // Variables para medición
