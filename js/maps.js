@@ -10,7 +10,7 @@ var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addT
 var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 
 var usuarios = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
-				layers:"clientes suministro",
+				layers:"clientes_suministro",
 				format:"image/png",
 				transparent:true
 
@@ -396,7 +396,7 @@ function updateModalContent(message, layerType) {
         let layerTitle = '';
 
         switch (layerType) {
-            case 'clientes suministro':
+            case 'clientes_suministro':
                 symbol = '🟢';
                 layerTitle = 'INFORMACION DEL CLIENTE';
                 break;
@@ -474,7 +474,7 @@ map.on('click', function(e) {
         var bbox = sw[0] + "," + sw[1] + "," + ne[0] + "," + ne[1];
         var size = map.getSize();
 
-        const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
+        const layerName = encodeURIComponent("catastro_huaraz:clientes_suministro");
 
         var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?
         SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo
@@ -526,7 +526,7 @@ map.on('click', function(e) {
                 }
 
                 console.log("Actualizando modal con la siguiente información:", modalInfo);
-                updateModalContent(modalInfo, "clientes suministro");
+                updateModalContent(modalInfo, "clientes_suministro");
             })
             .catch(error => {
                 console.error("Error obteniendo la información:", error);
