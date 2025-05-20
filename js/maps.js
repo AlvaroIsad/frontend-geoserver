@@ -252,6 +252,14 @@ L.Control.CustomLayers = L.Control.extend({
             }
         };
 
+	// 🔹 BOTÓN BÚSQUEDA INSCRIPCIÓN
+	var searchButton = L.DomUtil.create("button", "layer-btn", toolsContent);
+	searchButton.innerHTML = "🔍 Buscar INSCRIPCIÓN";
+	searchButton.onclick = function () {
+		// Mostrar el modal de búsqueda
+	document.getElementById("searchModal").style.display = "block";
+	};
+
         return container;
 
     }
@@ -461,84 +469,53 @@ function updateIdentityInfoBox(message) {
 
 map.on('click', function(e) {
     if (identityActive) {
+
         proj4.defs([
             ["EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"],
             ["EPSG:32718", "+proj=utm +zone=18 +south +datum=WGS84 +units=m +no_defs"]
         ]);
 
         var bounds = map.getBounds();
+
+        // Convertir SW y NE a EPSG:32718
         var sw = proj4("EPSG:4326", "EPSG:32718", [bounds.getSouthWest().lng, bounds.getSouthWest().lat]);
         var ne = proj4("EPSG:4326", "EPSG:32718", [bounds.getNorthEast().lng, bounds.getNorthEast().lat]);
 
-        var minX = sw[0];
-        var minY = sw[1];
-        var maxX = ne[0];
-        var maxY = ne[1];
+        // Definir minY, minX, maxY, maxX para WMS 1.3.0 (orden lat,long)
+        var minX = sw[0];  // longitud mínima
+        var minY = sw[1];  // latitud mínima
+        var maxX = ne[0];  // longitud máxima
+        var maxY = ne[1];  // latitud máxima
 
         var size = map.getSize();
-        
-        // No usar encodeURIComponent aquí - usar el formato exacto que espera GeoServer
-        const layerName = "catastro_huaraz:clientes%20suministro";
-        
+
+        const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
+
         var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?` +
-            `SERVICE=WMS&` +
-            `VERSION=1.3.0&` +
-            `REQUEST=GetFeatureInfo&` +
-            `LAYERS=${encodeURIComponent(layerName)}&` + 
-            `QUERY_LAYERS=${encodeURIComponent(layerName)}&` +
-            `TRANSPARENT=true&` +
-            `INFO_FORMAT=application/json&` +
-            `FEATURE_COUNT=10&` +
-            `I=${Math.floor(e.containerPoint.x)}&` +
-            `J=${Math.floor(e.containerPoint.y)}&` +
-            `CRS=EPSG:32718&` +
-            `WIDTH=${size.x}&` +
-            `HEIGHT=${size.y}&` +
-            `BBOX=${minX},${minY},${maxX},${maxY}`;
+	    `SERVICE=WMS&` +
+	    `VERSION=1.3.0&` +
+	    `REQUEST=GetFeatureInfo&` +
+	    `LAYERS=${layerName}&` +
+	    `QUERY_LAYERS=${layerName}&` +
+	    `TRANSPARENT=true&` +
+	    `INFO_FORMAT=application/json&` +
+	    `FEATURE_COUNT=10&` +
+	    `I=${Math.floor(e.containerPoint.x)}&` +
+	    `J=${Math.floor(e.containerPoint.y)}&` +
+	    `CRS=EPSG:32718&` +
+	    `WIDTH=${size.x}&` +
+	    `HEIGHT=${size.y}&` +
+	    `BBOX=${minX},${minY},${maxX},${maxY}`;
 
         console.log("Clic en:", e.latlng);
         console.log("URL generada:", url);
 
         fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    console.error(`Error HTTP: ${response.status}`);
-                }
-                
-                // Verificar el tipo de contenido
-                const contentType = response.headers.get('content-type');
-                console.log("Tipo de contenido recibido:", contentType);
-                
-                // Primero obtener el texto para depuración
-                return response.text().then(text => {
-                    console.log("Respuesta del servidor:", text.substring(0, 500) + "..."); // Primeros 500 caracteres
-                    
-                    // Si es JSON, parsearlo
-                    if (contentType && contentType.includes('application/json')) {
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            console.error("Error al parsear JSON:", e);
-                            throw new Error("Formato JSON inválido en la respuesta");
-                        }
-                    } else {
-                        // Si el HTML contiene algún mensaje de error específico, extraerlo
-                        let errorMsg = "Tipo de contenido incorrecto: " + contentType;
-                        if (text.includes("Error") || text.includes("Exception")) {
-                            // Tratar de extraer un mensaje de error más específico
-                            const errorMatch = text.match(/<[^>]*>(Error|Exception)[^<]*<\/[^>]*>/i);
-                            if (errorMatch) {
-                                errorMsg = errorMatch[0].replace(/<\/?[^>]+(>|$)/g, "");
-                            }
-                        }
-                        updateModalContent("Error al obtener datos: " + errorMsg);
-                        throw new Error(errorMsg);
-                    }
-                });
-            })
+            .then(response => response.json())  // Cambié a JSON porque pusiste INFO_FORMAT=json
             .then(data => {
                 if (!data.features || data.features.length === 0) {
-                    updateModalContent("No se encontraron datos en esta ubicación.");
+                    console.error("No se encontraron features en la respuesta JSON.");
+                    updateModalContent("No se encontraron datos.");
                     return;
                 }
 
@@ -561,11 +538,12 @@ map.on('click', function(e) {
                     modalInfo += `<div style='margin-bottom: 10px;'>${featureContent}</div>`;
                 }
 
-                updateModalContent(modalInfo, "Información del Cliente");
+                console.log("Actualizando modal con la siguiente información:", modalInfo);
+                updateModalContent(modalInfo, "clientes suministro");
             })
             .catch(error => {
-                console.error("Error completo:", error);
-                updateModalContent("Error al obtener datos del servidor. Consulta la consola para más detalles.");
+                console.error("Error obteniendo la información:", error);
+                updateModalContent("Error al obtener datos del servidor.");
             });
     }
 });
