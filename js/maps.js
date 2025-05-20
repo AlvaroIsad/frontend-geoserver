@@ -640,14 +640,13 @@ map.on('click', function(e) {
     }
 });
 
-document.getElementById("inscripSearchBtn").onclick = function () {
+document.getElementById("inscripSearchBtn").onclick = function() {
   var numero = document.getElementById("inscripInput").value.trim();
   if (!numero) return alert("Introduce un número de inscripción.");
 
+  // Construimos un WFS/GetFeature con filtro CQL para la capa clientes suministro
   var layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
-  var cql = `INSCRIPCION='${numero}'`;
-  var encodedCql = encodeURIComponent(cql);
-
+  var cql = encodeURIComponent(INSCRIPCION='${numero}'); 
   var url = `
     https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/
     geoserver/catastro_huaraz/ows?
@@ -655,22 +654,29 @@ document.getElementById("inscripSearchBtn").onclick = function () {
     version=1.1.0&
     request=GetFeature&
     typeName=${layerName}&
-    outputFormat=text/xml; subtype=gml/3.1.1&
-    cql_filter=${encodedCql}
+    outputFormat=application/json&
+    cql_filter=${cql}
   `.replace(/\s+/g, '');
 
-  console.log("Consultando URL:", url);
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.features || data.features.length === 0) {
+        return alert("No se encontró la inscripción especificada.");
+      }
+      // Si hay geometría, la añadimos y hacemos fitBounds
+      var feat = data.features[0];
+      var geojson = L.geoJSON(feat, {
+        style: { color: "#f00", weight: 3 }
+      }).addTo(map);
+      map.fitBounds(geojson.getBounds(), { maxZoom: 18 });
 
-  // Cargar el GML directamente en el mapa usando omnivore
-  omnivore.gml(url)
-    .on('ready', function () {
-      this.setStyle({ color: "#f00", weight: 3 });
-      map.fitBounds(this.getBounds(), { maxZoom: 18 });
+      // Cerramos modal
       document.getElementById("searchModal").style.display = "none";
     })
-    .on('error', function (err) {
-      console.error("Error al cargar GML:", err);
-      alert("Error al cargar los datos GML. Revisa la consola.");
+    .catch(err => {
+      console.error(err);
+      alert("Error en la búsqueda. Revisa la consola.");
     });
 };
 
