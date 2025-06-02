@@ -9,77 +9,77 @@ var osm = L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}");
 var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addTo(map);
 var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 
-var usuarios = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var usuarios = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"clientes suministro",
 				format:"image/png",
 				transparent:true
 
 }); 
 
-var manzana = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var manzana = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"manzana",
 				format:"image/png",
 				transparent:true
 
 }); 
 
-var lotes = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var lotes = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"lotes",
 				format:"image/png",
 				transparent:true
 
 }); 
 
-var cnx_agua = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var cnx_agua = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"acometidas agua",
 				format:"image/png",
 				transparent:true
 
 }); 
 
-var cnx_desague = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var cnx_desague = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"acometidas alcantarillado",
 				format:"image/png",
 				transparent:true
 
 }); 
 
-var calles = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var calles = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"calles",
                 format:"image/png",
                 transparent:true
 
 }); 
 
-var ruta_lectura = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var ruta_lectura = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"ruta lectura",
                 format:"image/png",
                 transparent:true
 
 }); 
 
-var ruta_reparto = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var ruta_reparto = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"ruta reparto",
                 format:"image/png",
                 transparent:true
 
 }); 
 
-var secuencia_ruta_lectura = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var secuencia_ruta_lectura = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"secuencia ruta de lectura",
                 format:"image/png",
                 transparent:true
 
 }); 
 
-var secuencia_ruta_reparto = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var secuencia_ruta_reparto = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"secuencia ruta de reparto",
                 format:"image/png",
                 transparent:true
 
 }); 
 
-var sector = L.tileLayer.wms("https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
+var sector = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"fondo sector",
                 format:"image/png",
                 transparent:true
@@ -583,7 +583,7 @@ map.on('click', function(e) {
 
         const layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
 
-        var url = `https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/geoserver/catastro_huaraz/wms?` +
+        var url = `https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?` +
 	    `SERVICE=WMS&` +
 	    `VERSION=1.3.0&` +
 	    `REQUEST=GetFeatureInfo&` +
@@ -648,7 +648,7 @@ document.getElementById("inscripSearchBtn").onclick = function() {
   var layerName = encodeURIComponent("catastro_huaraz:clientes suministro");
   var cql = encodeURIComponent(INSCRIPCION='${numero}'); 
   var url = `
-    https://6943-2803-a3e0-1952-6000-541d-f79d-58ad-2260.ngrok-free.app/
+    https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/
     geoserver/catastro_huaraz/ows?
     service=WFS&
     version=1.1.0&
