@@ -21,77 +21,99 @@ var blankLayer = L.tileLayer('', {
 var usuarios = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"clientes suministro",
 				format:"image/png",
-				transparent:true
+				transparent:true,
+				    minZoom: 0,
+				    maxZoom: 22
 
 }); 
 
 var manzana = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"manzana",
 				format:"image/png",
-				transparent:true
+				transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var lotes = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"lotes",
 				format:"image/png",
-				transparent:true
+				transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var cnx_agua = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"acometidas agua",
 				format:"image/png",
-				transparent:true
+				transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var cnx_desague = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"acometidas alcantarillado",
 				format:"image/png",
-				transparent:true
+				transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var calles = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"calles",
                 format:"image/png",
-                transparent:true
+                transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var ruta_lectura = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"ruta lectura",
                 format:"image/png",
-                transparent:true
+                transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var ruta_reparto = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"ruta reparto",
                 format:"image/png",
-                transparent:true
+                transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var secuencia_ruta_lectura = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"secuencia ruta de lectura",
                 format:"image/png",
-                transparent:true
+                transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var secuencia_ruta_reparto = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"secuencia ruta de reparto",
                 format:"image/png",
-                transparent:true
+                transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 }); 
 
 var sector = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
                 layers:"fondo sector",
                 format:"image/png",
-                transparent:true
+                transparent:true,
+    minZoom: 0,
+    maxZoom: 22
 
 });
 
