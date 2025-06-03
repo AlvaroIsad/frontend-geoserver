@@ -2,7 +2,6 @@ var map = L.map("map", {
     center: [-9.526812102530073, -77.52944905770515],
     zoom: 15,
     zoomControl: false // Oculta el control de zoom
-    maxZoom: 20 // límite inicial de zoom
 });
 
 var osy = L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}");
