@@ -8,9 +8,18 @@ var osy = L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}");
 var osm = L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"); 
 var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addTo(map);
 var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-var blankLayer = L.tileLayer('', {
-    maxZoom: 22 // permitir más zoom en blanco
-});
+var blankLayer = L.GridLayer.extend({
+        createTile: function(coords) {
+            var tile = document.createElement('canvas');
+            tile.width = 256;
+            tile.height = 256;
+            var ctx = tile.getContext('2d');
+            ctx.fillStyle = "#ffffff"; // Color blanco
+            ctx.fillRect(0, 0, 256, 256);
+            return tile;
+        }
+    });
+var whiteMap = new blankLayer({ maxZoom: 22 });
 
 var usuarios = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"clientes suministro",
@@ -94,8 +103,19 @@ var baseMaps = {
 				"Google Hibrido":osy,
 				"Google Maps":osm,
 				"Street Maps":osz,
-    				"Mapa en Blanco": blankLayer
+    				"Mapa en Blanco": whiteMap
 };
+
+L.control.layers(baseMaps).addTo(map);
+
+    // 5. Cambiar maxZoom al seleccionar "Mapa en Blanco"
+    map.on('baselayerchange', function(e) {
+        if (e.name === "Mapa en Blanco") {
+            map.setMaxZoom(22);
+        } else {
+            map.setMaxZoom(20);
+        }
+    });
 
 var wms = {
 				"Manzana":manzana,
