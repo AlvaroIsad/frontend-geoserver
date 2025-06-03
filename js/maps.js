@@ -4,27 +4,19 @@ var map = L.map("map", {
     zoomControl: false // Oculta el control de zoom
 });
 
-function reloadVisibleWMSLayers() {
-    map.eachLayer(function(layer) {
-        if (layer instanceof L.TileLayer.WMS && map.hasLayer(layer)) {
-            layer.setParams({ _random: Math.random() }); // fuerza recarga
+var osy = L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}");
+var osm = L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"); 
+var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addTo(map);
+var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+
+// Función que trae al frente todas las capas WMS activas
+function bringActiveWMSLayersToFront() {
+    Object.values(wms).forEach(function (layer) {
+        if (map.hasLayer(layer)) {
+            layer.bringToFront();
         }
     });
 }
-
-// Crear capas base con lógica para recargar WMS cuando se activan
-var osy = L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}");
-osy.on('add', reloadVisibleWMSLayers);
-
-var osm = L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}");
-osm.on('add', reloadVisibleWMSLayers);
-
-var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addTo(map);
-oss.on('add', reloadVisibleWMSLayers);
-
-var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-osz.on('add', reloadVisibleWMSLayers);
-
 
 var usuarios = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"clientes suministro",
@@ -124,6 +116,11 @@ var wms = {
                 "Sectores":sector
 
 };
+
+// Escucha cuando se cambia el mapa base y trae al frente las capas activas
+map.on("baselayerchange", function () {
+    bringActiveWMSLayersToFront();
+});
 
 var ubi = {
                 "Huaraz": L.layerGroup().on("add", function () {
