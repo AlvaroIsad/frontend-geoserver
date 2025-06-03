@@ -8,6 +8,9 @@ var osy = L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}");
 var osm = L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"); 
 var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addTo(map);
 var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+var blankLayer = L.tileLayer('', {
+    maxZoom: 22 // permitir más zoom en blanco
+});
 
 var usuarios = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"clientes suministro",
@@ -90,7 +93,8 @@ var baseMaps = {
 				"Google Satelite":oss,
 				"Google Hibrido":osy,
 				"Google Maps":osm,
-				"Street Maps":osz
+				"Street Maps":osz,
+    				"Mapa en Blanco": blankLayer
 };
 
 var wms = {
