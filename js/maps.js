@@ -109,6 +109,19 @@ var wms = {
 
 };
 
+// ⬇️ ⬇️ AQUI VA el código para recargar capas WMS al cambiar de base ⬇️ ⬇️
+function reloadVisibleWMSLayers() {
+    map.eachLayer(function(layer) {
+        if (layer instanceof L.TileLayer.WMS && map.hasLayer(layer)) {
+            layer.setParams({ _random: Math.random() });
+        }
+    });
+}
+
+map.on("baselayerchange", function () {
+    reloadVisibleWMSLayers();
+});
+
 var ubi = {
                 "Huaraz": L.layerGroup().on("add", function () {
                     map.setView([-9.526812102530073, -77.52944905770515], 15);
