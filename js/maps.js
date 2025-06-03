@@ -9,14 +9,14 @@ var osm = L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}");
 var oss = L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}").addTo(map);
 var osz = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 
-// Función que trae al frente todas las capas WMS activas
-function bringActiveWMSLayersToFront() {
-    Object.values(wms).forEach(function (layer) {
-        if (map.hasLayer(layer)) {
-            layer.bringToFront();
-        }
-    });
-}
+// Capa en blanco funcional
+var blankLayer = L.tileLayer('', {
+    attribution: '',
+    maxZoom: 22,
+    minZoom: 0,
+    noWrap: true,
+    bounds: [[-90, -180], [90, 180]]
+});
 
 var usuarios = L.tileLayer.wms("https://91f6-2803-a3e0-1956-30c0-a9d7-83fa-8096-28ae.ngrok-free.app/geoserver/catastro_huaraz/wms?",{
 				layers:"clientes suministro",
@@ -99,7 +99,8 @@ var baseMaps = {
 				"Google Satelite":oss,
 				"Google Hibrido":osy,
 				"Google Maps":osm,
-				"Street Maps":osz
+				"Street Maps":osz,
+    				"Mapa en Blanco": blankLayer
 };
 
 var wms = {
@@ -116,11 +117,6 @@ var wms = {
                 "Sectores":sector
 
 };
-
-// Escucha cuando se cambia el mapa base y trae al frente las capas activas
-map.on("baselayerchange", function () {
-    bringActiveWMSLayersToFront();
-});
 
 var ubi = {
                 "Huaraz": L.layerGroup().on("add", function () {
